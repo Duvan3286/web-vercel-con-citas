@@ -1,0 +1,133 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------------------------- */
+/* TIPOGRAFÍA */
+/* ----------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ----------------------------- */
+/* TEMA CLARO & GLOBALES */
+/* ----------------------------- */
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F5F1E7; 
+  color: #3B3A36; 
+  margin: 0;
+  padding: 0;
+}
+
+/* ----------------------------- */
+/* COMPONENTES Tailwind Personalizados */
+/* ----------------------------- */
+.container {
+  @apply max-w-7xl mx-auto px-4;
+}
+
+.card {
+  @apply bg-white shadow-md rounded-xl p-6 transition hover:shadow-lg;
+  border-top: 4px solid #A48A6F; 
+}
+
+.btn-primary {
+  @apply bg-amber-600 text-white px-6 py-3 rounded-xl hover:bg-amber-500 transition;
+}
+
+.btn-secondary {
+  @apply bg-amber-400 text-amber-900 px-6 py-3 rounded-xl hover:bg-amber-500 transition;
+}
+
+.input {
+  @apply px-4 py-3 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500;
+}
+
+a {
+  @apply text-accent hover:text-accent-foreground transition;
+}
+
+/* ----------------------------- */
+/* CORRECCIONES REACT-DATEPICKER */
+/* ----------------------------- */
+
+/* Asegura que el calendario sea interactivo y responsive en móvil */
+.react-datepicker {
+  /* Z-index alto para asegurar que no sea bloqueado */
+  z-index: 50; 
+  /* Responsividad en el ancho */
+  width: 100%; 
+  max-width: 100%; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid hsl(var(--border));
+}
+
+/* LA CORRECCIÓN CLAVE PARA MÓVIL (Touch Interaction) */
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+    /* Esto instruye al navegador a registrar el toque como un clic y no como un scroll/swipe */
+    touch-action: manipulation !important;
+}
+
+/* Asegura que los días sean seleccionables */
+.react-datepicker__day {
+  cursor: pointer;
+  z-index: 60; 
+}
+
+/* Estilos visuales basados en tus variables */
+.react-datepicker__header {
+  background-color: hsl(var(--primary)); 
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: hsl(var(--primary-foreground)); 
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day:hover {
+  background-color: hsl(var(--accent)) !important; 
+  color: hsl(var(--accent-foreground)) !important; 
+  border-radius: 9999px; 
+}
+
+
+/* ----------------------------- */
+/* VARIABLES DE COLOR PERSONALIZADAS */
+/* ----------------------------- */
+@layer base {
+  :root {
+    --background: 30 20% 95%; 
+    --foreground: 30 15% 25%; 
+    --primary: 40 30% 60%; 
+    --primary-foreground: 0 0% 100%; 
+    --secondary: 40 80% 70%; 
+    --secondary-foreground: 30 15% 25%; 
+    --accent: 210 60% 45%; 
+    --accent-foreground: 0 0% 100%; 
+    --card: 30 20% 100%; 
+    --card-foreground: 30 15% 25%;
+    --border: 30 25% 75%; 
+    --ring: 40 80% 60%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,31 +1,14 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { sendEmail } from "../../../lib/sendEmail";
+import { readDB, writeDB } from "../../../lib/dbCitas";
 
-// Path al archivo JSON
-const DATA_PATH = path.join(process.cwd(), "data", "citas.json");
+export const runtime = "nodejs";
 
 // Email del dueño (desde .env.local)
 const OWNER_EMAIL = process.env.OWNER_EMAIL;
 
 // Duración de la cita en minutos
 const DURATION_MINUTES = 60;
-
-// Leer archivo JSON
-async function readDB() {
-  try {
-    const raw = await fs.readFile(DATA_PATH, "utf8");
-    return JSON.parse(raw || "[]");
-  } catch {
-    return [];
-  }
-}
-
-// Guardar archivo JSON
-async function writeDB(citas) {
-  await fs.writeFile(DATA_PATH, JSON.stringify(citas, null, 2));
-}
 
 // Función correcta para formatear fechas del Calendar
 function formatForCalendar(date) {
@@ -40,7 +23,6 @@ function escapeHtml(v) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
 
 export async function POST(req) {
   try {
@@ -67,7 +49,7 @@ export async function POST(req) {
     const fecha = fechaHora.slice(0, 10);
     const hora = fechaHora.slice(11, 16);
 
-    // 3️⃣ Google Calendar Link — 100% exacto y sin desfases
+    // 3️⃣ Google Calendar Link
     const startDate = new Date(fechaHora);
     const endDate = new Date(startDate.getTime() + DURATION_MINUTES * 60000);
 
@@ -101,93 +83,106 @@ export async function POST(req) {
         `Notas: ${notas || "N/A"}\n` +
         `Google Calendar: ${calendarLink}\n`,
       html: `
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-    style="background:#f6f7fb;padding:24px;font-family:Arial,Helvetica,sans-serif;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0"
-          style="background:#ffffff;border:1px solid #e6e8f0;border-radius:14px;overflow:hidden;">
-          <tr>
-            <td style="padding:18px 22px;background:#4A6D9C;color:#ffffff;">
-              <div style="font-size:18px;font-weight:700;">Nueva cita agendada</div>
-              <div style="font-size:13px;opacity:.9;margin-top:4px;">Agenda</div>
-            </td>
-          </tr>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"
+  style="background:#f6f7fb;padding:24px;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0"
+        style="background:#ffffff;border:1px solid #e6e8f0;border-radius:14px;overflow:hidden;">
+        <tr>
+          <td style="padding:18px 22px;background:#4A6D9C;color:#ffffff;">
+            <div style="font-size:18px;font-weight:700;">Nueva cita agendada</div>
+            <div style="font-size:13px;opacity:.9;margin-top:4px;">Agenda</div>
+          </td>
+        </tr>
 
-          <tr>
-            <td style="padding:18px 22px;">
-              <div style="font-size:14px;color:#334155;margin-bottom:12px;">
-                Se registró una nueva reserva. Detalles:
-              </div>
+        <tr>
+          <td style="padding:18px 22px;">
+            <div style="font-size:14px;color:#334155;margin-bottom:12px;">
+              Se registró una nueva reserva. Detalles:
+            </div>
 
-              <div style="margin-bottom:14px;">
-                <span style="display:inline-block;padding:10px 12px;border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;margin-right:8px;">
-                  <div style="font-size:12px;color:#1e40af;">Fecha</div>
-                  <div style="font-size:16px;font-weight:700;color:#1e3a8a;">${escapeHtml(fecha)}</div>
-                </span>
+            <div style="margin-bottom:14px;">
+              <span style="display:inline-block;padding:10px 12px;border:1px solid #dbeafe;background:#eff6ff;border-radius:12px;margin-right:8px;">
+                <div style="font-size:12px;color:#1e40af;">Fecha</div>
+                <div style="font-size:16px;font-weight:700;color:#1e3a8a;">${escapeHtml(
+                  fecha
+                )}</div>
+              </span>
 
-                <span style="display:inline-block;padding:10px 12px;border:1px solid #dcfce7;background:#f0fdf4;border-radius:12px;">
-                  <div style="font-size:12px;color:#166534;">Hora</div>
-                  <div style="font-size:16px;font-weight:700;color:#14532d;">${escapeHtml(hora)}</div>
-                </span>
-              </div>
+              <span style="display:inline-block;padding:10px 12px;border:1px solid #dcfce7;background:#f0fdf4;border-radius:12px;">
+                <div style="font-size:12px;color:#166534;">Hora</div>
+                <div style="font-size:16px;font-weight:700;color:#14532d;">${escapeHtml(
+                  hora
+                )}</div>
+              </span>
+            </div>
 
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
-                <tr>
-                  <td style="padding:10px 0;border-top:1px solid #eef2ff;">
-                    <div style="font-size:12px;color:#64748b;">Paciente</div>
-                    <div style="font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(nombre)}</div>
-                  </td>
-                </tr>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+              <tr>
+                <td style="padding:10px 0;border-top:1px solid #eef2ff;">
+                  <div style="font-size:12px;color:#64748b;">Paciente</div>
+                  <div style="font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(
+                    nombre
+                  )}</div>
+                </td>
+              </tr>
 
-                <tr>
-                  <td style="padding:10px 0;border-top:1px solid #eef2ff;">
-                    <div style="font-size:12px;color:#64748b;">Servicio</div>
-                    <div style="font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(servicio)}</div>
-                  </td>
-                </tr>
+              <tr>
+                <td style="padding:10px 0;border-top:1px solid #eef2ff;">
+                  <div style="font-size:12px;color:#64748b;">Servicio</div>
+                  <div style="font-size:15px;font-weight:700;color:#0f172a;">${escapeHtml(
+                    servicio
+                  )}</div>
+                </td>
+              </tr>
 
-                <tr>
-                  <td style="padding:10px 0;border-top:1px solid #eef2ff;">
-                    <div style="font-size:12px;color:#64748b;">Email</div>
-                    <div style="font-size:14px;color:#0f172a;">${escapeHtml(email)}</div>
-                  </td>
-                </tr>
+              <tr>
+                <td style="padding:10px 0;border-top:1px solid #eef2ff;">
+                  <div style="font-size:12px;color:#64748b;">Email</div>
+                  <div style="font-size:14px;color:#0f172a;">${escapeHtml(
+                    email
+                  )}</div>
+                </td>
+              </tr>
 
-                <tr>
-                  <td style="padding:10px 0;border-top:1px solid #eef2ff;">
-                    <div style="font-size:12px;color:#64748b;">Teléfono</div>
-                    <div style="font-size:14px;color:#0f172a;">${escapeHtml(telefono || "N/A")}</div>
-                  </td>
-                </tr>
+              <tr>
+                <td style="padding:10px 0;border-top:1px solid #eef2ff;">
+                  <div style="font-size:12px;color:#64748b;">Teléfono</div>
+                  <div style="font-size:14px;color:#0f172a;">${escapeHtml(
+                    telefono || "N/A"
+                  )}</div>
+                </td>
+              </tr>
 
-                <tr>
-                  <td style="padding:10px 0;border-top:1px solid #eef2ff;">
-                    <div style="font-size:12px;color:#64748b;">Notas</div>
-                    <div style="font-size:14px;color:#0f172a;white-space:pre-line;">${escapeHtml(notas || "N/A")}</div>
-                  </td>
-                </tr>
-              </table>
+              <tr>
+                <td style="padding:10px 0;border-top:1px solid #eef2ff;">
+                  <div style="font-size:12px;color:#64748b;">Notas</div>
+                  <div style="font-size:14px;color:#0f172a;white-space:pre-line;">${escapeHtml(
+                    notas || "N/A"
+                  )}</div>
+                </td>
+              </tr>
+            </table>
 
-              <div style="margin-top:18px;">
-                <a href="${calendarLink}"
-                  style="display:inline-block;background:#4A6D9C;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:10px;font-weight:700;">
-                  ➕ Agregar a Google Calendar
-                </a>
-              </div>
+            <div style="margin-top:18px;">
+              <a href="${calendarLink}"
+                style="display:inline-block;background:#4A6D9C;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:10px;font-weight:700;">
+                ➕ Agregar a Google Calendar
+              </a>
+            </div>
 
-              <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
-                Correo generado automáticamente.
-              </div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-  `,
+            <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
+              Correo generado automáticamente.
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+      `,
     });
-
 
     // 5️⃣ Respuesta al frontend
     return NextResponse.json({
@@ -197,9 +192,6 @@ export async function POST(req) {
     });
   } catch (err) {
     console.error("Error creando cita:", err);
-    return NextResponse.json(
-      { error: "Error al crear la cita" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error al crear la cita" }, { status: 500 });
   }
 }

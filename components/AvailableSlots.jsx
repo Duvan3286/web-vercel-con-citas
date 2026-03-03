@@ -207,8 +207,8 @@ if (servicioInput) {
     setBooking(true);
 
     try {
-      const fechaHora = `${date}T${selectedHour}:00`;
-
+      //const fechaHora = `${date}T${selectedHour}:00`;
+      const fechaHora = `${date}T${selectedHour}:00-05:00`;
       const res = await fetch("/api/citas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

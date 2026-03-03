@@ -1,20 +1,29 @@
 [
   {
-    "id": 1772489317604,
-    "nombre": "ghnghfgbc",
-    "email": "vbcvbcvbcv@jfjfj.com",
-    "telefono": "4353453453",
+    "id": 1772503198168,
+    "nombre": "duvan",
+    "email": "vera.duvan3@gmail.com",
+    "telefono": "1213123123",
     "servicio": "Consulta",
-    "fechaHora": "2026-03-04T08:00:00",
+    "fechaHora": "2026-03-03T08:00:00",
     "notas": ""
   },
   {
-    "id": 1772492126782,
-    "nombre": "Duvan vera",
+    "id": 1772503717841,
+    "nombre": "bgdfgdfg",
     "email": "vera.duvan3@gmail.com",
-    "telefono": "1234567890",
+    "telefono": "3424242333",
     "servicio": "Consulta",
-    "fechaHora": "2026-03-03T08:00:00",
-    "notas": "cita urgente "
+    "fechaHora": "2026-03-03T09:00:00-05:00",
+    "notas": "900"
+  },
+  {
+    "id": 1772503764738,
+    "nombre": "prueba",
+    "email": "vera.duvan3@gmail.com",
+    "telefono": "3242342432",
+    "servicio": "Consulta",
+    "fechaHora": "2026-03-03T16:00:00-05:00",
+    "notas": "prueba "
   }
 ]
